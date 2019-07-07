@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
+    <!-- Firebase References -->
+    <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-database.js"></script>
+
+    <!-- Added Moment JS -->
+    <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+
+
+    <title>Train Schedule</title>
+  </head>
+  <body>
+
+    <div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1 class="display-4">Train Schedule</h1>
+    <p class="lead"></p>
+  </div>
+</div>
+
+<br>
+<div class="container-flex">
+  <div class="row">
+    <div class="col">
+      Current Schedule
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+
+
+      <table class="table table-hover table-dark" id="myTable">
+        <thead>
+          <tr>
+            <th scope="col">Train Name</th>
+            <th scope="col">Destination</th>
+            <th scope="col">Frequency (min)</th>
+            <th scope="col">Next Arrival</th>
+            <th scope="col">Minutes Away</th>
+          </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+      </table>
+
+
+    </div>
+  </div>
+
+      <br>
+      <div class="container">
+
+        <br>
+
+        <div class="row">
+
+          <!-- Sign-Up Card-->
+          <div class="col-lg-6">
+            <div class="card card-default">
+              <div class="card-header">
+                New Train Schedule
+              </div>
+              <div class="card-body">
+
+                <!-- Sign-up Form (note the various input "types")-->
+
+                <form role="form">
+                  <div class="form-group row">
+                    <label for="name-input">Train Name:</label>
+                    <input class="form-control" id="name-input" type="text">
+                  </div>
+                  <div class="form-group row">
+                    <label for="role-input">Destination:</label>
+                    <input class="form-control" id="role-input" type="text">
+                  </div>
+                  <div class="form-group row">
+                    <label for="time-input">First Train (hh:mm)</label>
+                    <input class="form-control" id="time-input" type="time">
+                  </div>
+                  <div class="form-group row">
+                    <label for="rate-input">Frequency:</label>
+                    <input class="form-control" id="rate-input" type="text">
+                  </div>
+                  <button class="btn btn-default" id="add-Schedule" type="submit">Submit</button>
+                </form>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Most Recent Member card -->
+          <div class="col-lg-6">
+            <div class="card card-default">
+              <div class="card-header">
+                Recently Added
+              </div>
+              <div class="card-body" id="recent-member">
+                <h2>Train Name:</h2>
+                <h4 id="name-display"></h4>
+                <h2>Destination:</h2>
+                <h4 id="role-display"></h4>
+                <h2>First Train:</h2>
+                <h4 id="start-time-display"></h4>
+                <h2>Frequency (mins):</h2>
+                <h4 id="rate-display"></h4>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+
+
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+
+    <!-- Script -->
+    <script>
+      // ========================================== START CODING BELOW!!
+
+      // Initialize Firebase
+
+          //SETS DATABASE CONFIGURATIONS
+            var config = {
+              //apiKey: 'AIzaSyAgc85qULigTIbF658xdHmrHrlIt33YVCc',
+              authDomain: 'fireboxsandbox1.firebaseapp.com',
+              databaseURL: 'https://fireboxsandbox1.firebaseio.com/',
+              projectId: 'fireboxsandbox1',
+              storageBucket: 'fireboxsandbox1.appspot.com',
+              messagingSenderId: '893336609914',
+              appId: '1:893336609914:web:21a305b4f0cd4746',
+            };
+
+
+
+      firebase.initializeApp(config);
+
+      // Create a variable to reference the database.
+      var database = firebase.database();
+
+      // Initial Values
+      var name = "";
+      var role = "";
+      var startTime = 0;
+      var rate = 0;
+
+      var timeCalculator = function(tFreq,fTime){
+
+        // Assumptions
+        var tFrequency = parseInt(tFreq);
+
+        // Time is 3:30 AM
+        var firstTime = fTime;
+
+        // First Time (pushed back 1 year to make sure it comes before current time)
+        var firstTimeConverted = moment(firstTime, "HH:mm").subtract(1, "years");
+        console.log(firstTimeConverted);
+
+        // Current Time
+        var currentTime = moment();
+        console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
+
+        // Difference between the times
+        var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+        console.log("DIFFERENCE IN TIME: " + diffTime);
+
+        // Time apart (remainder)
+        var tRemainder = diffTime % tFrequency;
+        console.log(tRemainder);
+
+        // Minute Until Train
+        var tMinutesTillTrain = tFrequency - tRemainder;
+        console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+
+        // Next Train
+        var nextTrain = moment().add(tMinutesTillTrain, "minutes");
+        console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"));
+
+        return tMinutesTillTrain;
+
+      };
+
+      // Capture Button Click
+      $("#add-Schedule").on("click", function(event) {
+        event.preventDefault();
+
+        // Grabbed values from text boxes
+        name = $("#name-input").val().trim();
+        role = $("#role-input").val().trim();
+        startTime = $("#time-input").val().trim();
+        rate = $("#rate-input").val().trim();
+        console.log("STARTTIME " + startTime);
+        console.log("RATE "+rate);
+
+
+
+        // Code for handling the push
+        database.ref().push({
+          name: name,
+          role: role,
+          startTime:  startTime,
+          rate: rate,
+          dateAdded: firebase.database.ServerValue.TIMESTAMP
+        });
+
+      });
+
+      // Firebase watcher .on("child_added"
+      database.ref().on("child_added", function(snapshot) {
+        // storing the snapshot.val() in a variable for convenience
+        var sv = snapshot.val();
+
+        var minsNextTrain = timeCalculator(sv.startTime,sv.rate);
+
+        var nextTrainTime = moment().add(minsNextTrain, "minutes");
+        var nextTrainTimeInput = moment(nextTrainTime).format("hh:mm");
+
+
+        // Change the HTML to reflect
+        $("#name-display").text(sv.name);
+        $("#role-display").text(sv.role);
+        $("#start-time-display").text(sv.startTime);
+        $("#rate-display").text(sv.rate);
+
+
+        $('#myTable').append('<tr><td>'+sv.name+'</td> <td>'+sv.role+'</td> <td> every '+sv.rate +' mins</td> <td>'+nextTrainTimeInput+' HRs </td> <td>'+minsNextTrain+' mins </td></tr>');
+
+        // Handle the errors
+      }, function(errorObject) {
+        console.log("Errors handled: " + errorObject.code);
+      });
+
+    </script>
+
+
+
+
+
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>
