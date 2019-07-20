@@ -1,5 +1,12 @@
 # firebaseSandbox
-Testing out firebase functionality
+## Train Schedule Test
 
-Testing out storing data in  firebase and updating web elements dynamically based on this data.
-Will use this repo for further firebase sandboxing
+https://andresagu.github.io/firebaseSandbox/
+
+Testing firebox functionality using a firebox real database and moment.js. 
+
+## Functionality
+View train schedules, in real time, entered by users via the input form. Uses moment.js to calculate train arrivals and schedule. 
+
+### note:
+Used for general firebase testing
